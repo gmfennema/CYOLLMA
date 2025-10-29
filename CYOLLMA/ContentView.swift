@@ -1,59 +1,31 @@
-//
-//  ContentView.swift
-//  CYOLLMA
-//
-//  Created by Gabe Fennema on 10/28/25.
-//
-
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @EnvironmentObject private var viewModel: GameViewModel
+    @State private var showSettings: Bool = false
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        Group {
+            if viewModel.isInSession {
+                GameExperienceView(showSettings: $showSettings)
+                    .environmentObject(viewModel)
+                    .transition(.opacity)
+            } else {
+                HomeView(showSettings: $showSettings)
+                    .environmentObject(viewModel)
+                    .transition(.opacity)
             }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-            .toolbar {
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
         }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.isInSession)
+        .background(Theme.background.ignoresSafeArea())
+        .sheet(isPresented: $showSettings) {
+            SettingsSheet(isPresented: $showSettings)
+                .environmentObject(viewModel)
         }
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .environmentObject(GameViewModel())
 }
