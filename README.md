@@ -21,9 +21,9 @@ CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessi
 ## Screenshots
 
 <p align="center">
-  <img src="Assets/homescreen.png" alt="Home screen" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
-  <img src="Assets/local_or_cloud.png" alt="Settings provider picker" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
-  <img src="Assets/story_view.png" alt="Story view with narration controls" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+  <img src="assets/homescreen.png" alt="Home screen" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+  <img src="assets/local_or_cloud.png" alt="Settings provider picker" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+  <img src="assets/story_view.png" alt="Story view with narration controls" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
 </p>
 
 ## License
