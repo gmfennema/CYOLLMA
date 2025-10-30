@@ -116,7 +116,6 @@ Temporary Items
 # Build artifacts from our build script
 dist/
 build/
-build-release.sh
 
 # Archive files
 *.xcarchive
