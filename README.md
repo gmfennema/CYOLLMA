@@ -1,6 +1,18 @@
 # CYOLLMA
 
-CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessions against local Ollama models or Groq’s hosted LLMs. It guides the model with strict prompts to keep chapters fresh, collects player choices, and lets you steer the story with write‑ins or explicit creative direction.
+CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessions against local Ollama models or Groq's hosted LLMs. It guides the model with strict prompts to keep chapters fresh, collects player choices, and lets you steer the story with write‑ins or explicit creative direction.
+
+## Download
+
+<p align="center">
+  <a href="CYOLLMA.app">
+    <img src="https://img.shields.io/badge/Download-CYOLLMA.app-blue?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Apple Silicon">
+  </a>
+</p>
+
+**For Apple Silicon (M1/M2/M3) Macs**
+
+**Note:** Right-click the app and select "Open" the first time you launch it, as macOS may show a security warning for unsigned apps. For easier distribution, consider zipping the app bundle or hosting it via GitHub Releases.
 
 ## Features
 
