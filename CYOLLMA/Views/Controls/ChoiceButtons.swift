@@ -10,12 +10,17 @@ struct ChoiceButtons: View {
     @FocusState private var directionFocused: Bool
 
     private let controlColumns: [GridItem] = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
+    ]
+    
+    private let choiceColumns: [GridItem] = [
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 10) {
             if let chapter = viewModel.story.currentChapter, chapter.selectedOptionId == nil {
                 Text("Choose your next path")
                     .font(Theme.monoCaption())
@@ -23,7 +28,7 @@ struct ChoiceButtons: View {
                     .textCase(.uppercase)
                     .tracking(0.6)
 
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 8) {
                     if viewModel.isRefreshingChoices {
                         HStack(spacing: 8) {
                             ProgressView()
@@ -35,54 +40,62 @@ struct ChoiceButtons: View {
                         }
                     }
 
-                    ForEach(Array(chapter.choices.enumerated()), id: \.element.id) { index, choice in
-                        Button(action: { viewModel.choose(choice) }) {
-                            HStack(alignment: .top, spacing: 12) {
-                                Text("\(index + 1).")
-                                    .font(.callout.weight(.semibold))
-                                    .foregroundStyle(Theme.accent)
+                    LazyVGrid(columns: choiceColumns, spacing: 10) {
+                        ForEach(Array(chapter.choices.enumerated()), id: \.element.id) { index, choice in
+                            Button(action: { viewModel.choose(choice) }) {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("\(index + 1).")
+                                        .font(.callout.weight(.semibold))
+                                        .foregroundStyle(Theme.accent)
 
-                                Text(choice.label)
-                                    .font(Theme.bodyFont())
-                                    .foregroundStyle(Theme.textPrimary)
-                                    .multilineTextAlignment(.leading)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(choice.label)
+                                        .font(Theme.bodyFont())
+                                        .foregroundStyle(Theme.textPrimary)
+                                        .multilineTextAlignment(.leading)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .frame(maxWidth: .infinity, minHeight: 60, alignment: .topLeading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(Theme.surface.opacity(0.9))
+                                )
                             }
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(Theme.surface.opacity(0.9))
-                            )
+                            .buttonStyle(.plain)
+                            .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
                         }
-                        .buttonStyle(.plain)
-                        .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
                     }
 
                     if let direction = viewModel.pendingCreativeDirection, !direction.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Label("Creative direction queued", systemImage: "sparkles")
-                                .font(.caption.weight(.semibold))
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "sparkles")
+                                .font(.caption)
                                 .foregroundStyle(Theme.accent)
-                            Text(direction)
-                                .font(.footnote)
-                                .foregroundStyle(Theme.textSecondary)
-                                .lineLimit(3)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Creative direction queued")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(Theme.accent)
+                                Text(direction)
+                                    .font(.footnote)
+                                    .foregroundStyle(Theme.textSecondary)
+                                    .lineLimit(2)
+                            }
                         }
-                        .padding(12)
+                        .padding(10)
                         .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
                                 .fill(Theme.surface.opacity(0.7))
                         )
                     }
 
-                    LazyVGrid(columns: controlColumns, spacing: 12) {
+                    LazyVGrid(columns: controlColumns, spacing: 10) {
                         Button {
                             viewModel.regenerateChoicesForCurrentChapter()
                         } label: {
                             Label("Refresh options", systemImage: "square.grid.2x2")
                                 .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .frame(maxWidth: .infinity, minHeight: 36)
                         }
                         .buttonStyle(MonochromeButtonStyle(kind: .subtle))
                         .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
@@ -92,7 +105,7 @@ struct ChoiceButtons: View {
                         } label: {
                             Label("Regenerate chapter", systemImage: "arrow.clockwise")
                                 .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .frame(maxWidth: .infinity, minHeight: 36)
                         }
                         .buttonStyle(MonochromeButtonStyle(kind: .subtle))
                         .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
@@ -103,7 +116,7 @@ struct ChoiceButtons: View {
                         } label: {
                             Label("Write an action", systemImage: "pencil")
                                 .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .frame(maxWidth: .infinity, minHeight: 36)
                         }
                         .buttonStyle(MonochromeButtonStyle(kind: .subtle))
                         .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
@@ -114,7 +127,7 @@ struct ChoiceButtons: View {
                         } label: {
                             Label("Help write chapter", systemImage: "lightbulb")
                                 .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .frame(maxWidth: .infinity, minHeight: 36)
                         }
                         .buttonStyle(MonochromeButtonStyle(kind: .subtle))
                         .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)

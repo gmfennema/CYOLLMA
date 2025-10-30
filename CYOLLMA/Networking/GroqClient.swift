@@ -112,6 +112,9 @@ struct GroqClient {
     }
 
     func synthesizeSpeech(text: String, voice: String, apiKey: String) async throws -> Data {
+        // Sanitize text for TTS: normalize whitespace, handle dialogue formatting
+        let sanitizedText = sanitizeTextForTTS(text)
+        
         var request = URLRequest(url: speechURL)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -120,7 +123,7 @@ struct GroqClient {
         let payload = SpeechRequest(
             model: "playai-tts",
             voice: voice,
-            input: text,
+            input: sanitizedText,
             response_format: "wav"
         )
         request.httpBody = try JSONEncoder().encode(payload)
@@ -131,12 +134,63 @@ struct GroqClient {
         }
 
         guard (200..<300).contains(http.statusCode) else {
-            if let message = try? JSONDecoder().decode(ErrorResponse.self, from: data).error {
-                throw GroqClientError.serverError(message)
+            // Try to decode error message from response
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                throw GroqClientError.serverError(errorResponse.error)
             }
-            throw GroqClientError.invalidResponse
+            // If error response can't be decoded, try to get raw response for debugging
+            if let errorString = String(data: data, encoding: .utf8) {
+                throw GroqClientError.serverError("HTTP \(http.statusCode): \(errorString)")
+            }
+            throw GroqClientError.serverError("HTTP \(http.statusCode): Invalid response")
         }
         return data
+    }
+    
+    private func sanitizeTextForTTS(_ text: String) -> String {
+        var sanitized = text
+        
+        // Replace dialogue formatting (Character Name: "Dialogue.") with plain text
+        // Pattern: "Name: \"text.\"" -> "Name says: text."
+        // This handles the format used in narratives: Character Name: "Dialogue here."
+        // Use a more flexible pattern that handles various character names and dialogue styles
+        let dialoguePattern = #"([A-Z][A-Za-z\s]+?):\s*"([^"]+?)""#
+        if let regex = try? NSRegularExpression(pattern: dialoguePattern, options: []) {
+            let range = NSRange(sanitized.startIndex..., in: sanitized)
+            sanitized = regex.stringByReplacingMatches(
+                in: sanitized,
+                options: [],
+                range: range,
+                withTemplate: "$1 says: $2"
+            )
+        }
+        
+        // Normalize whitespace: replace multiple newlines with single space
+        sanitized = sanitized.replacingOccurrences(of: #"\n\s*\n"#, with: " ", options: .regularExpression)
+        // Replace single newlines with spaces
+        sanitized = sanitized.replacingOccurrences(of: #"\n"#, with: " ", options: .regularExpression)
+        // Collapse multiple spaces to single space
+        sanitized = sanitized.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+        
+        // Handle special quotes that might cause JSON encoding issues
+        // Replace curly quotes with straight quotes using Unicode scalars
+        sanitized = sanitized.replacingOccurrences(of: "\u{201C}", with: "\"") // Left double quotation mark
+        sanitized = sanitized.replacingOccurrences(of: "\u{201D}", with: "\"") // Right double quotation mark
+        sanitized = sanitized.replacingOccurrences(of: "\u{2018}", with: "'") // Left single quotation mark
+        sanitized = sanitized.replacingOccurrences(of: "\u{2019}", with: "'") // Right single quotation mark
+        
+        // Remove any control characters that might cause issues
+        sanitized = sanitized.replacingOccurrences(of: #"\r"#, with: "", options: .regularExpression)
+        
+        // Trim leading/trailing whitespace
+        sanitized = sanitized.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Ensure text is not empty (fallback safety check)
+        guard !sanitized.isEmpty else {
+            return text.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        
+        return sanitized
     }
 
     func generateChoices(model: String, temperature: Double, context: String, apiKey: String) async throws -> [ChoiceOption] {

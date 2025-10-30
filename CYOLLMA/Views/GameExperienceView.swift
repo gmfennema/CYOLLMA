@@ -31,7 +31,10 @@ struct GameExperienceView: View {
                 ChoiceButtons()
                     .environmentObject(viewModel)
                     .padding(.horizontal, 24)
-                    .padding(.vertical, 24)
+                    .padding(.top, 16)
+                    .padding(.bottom, 18)
+                    .background(Theme.surface)
+                    .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: -2)
             }
 
             if let error = viewModel.errorMessage {
