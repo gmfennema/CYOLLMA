@@ -5,14 +5,22 @@ CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessi
 ## Download
 
 <p align="center">
-  <a href="https://github.com/gmfennema/CYOLLMA/raw/main/CYOLLMA-app.zip" download>
+  <a href="https://github.com/gmfennema/CYOLLMA/raw/main/CYOLLMA-app.dmg" download>
     <img src="https://img.shields.io/badge/Download-CYOLLMA.app-blue?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Apple Silicon">
   </a>
 </p>
 
 **For Apple Silicon (M1/M2/M3) Macs**
 
-**Installation:** After downloading, unzip the file and drag `CYOLLMA.app` to your Applications folder. Right-click the app and select "Open" the first time you launch it, as macOS may show a security warning for unsigned apps.
+**Installation:**
+
+1. Download the DMG file above
+2. Open the DMG and drag `CYOLLMA.app` to your Applications folder
+3. If macOS shows "CYOLLMA.app is damaged and can't be opened", run this command in Terminal to remove the quarantine attribute:
+   ```bash
+   xattr -d com.apple.quarantine /Applications/CYOLLMA.app
+   ```
+4. Right-click the app and select "Open" the first time you launch it, then click "Open" again when prompted
 
 ## Features
 
