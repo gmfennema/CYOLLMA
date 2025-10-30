@@ -123,4 +123,5 @@ build-release.sh
 
 # Release DMG files
 *.dmg
+!CYOLLMA-app.dmg
 
