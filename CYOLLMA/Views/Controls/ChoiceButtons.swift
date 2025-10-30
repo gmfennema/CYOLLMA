@@ -9,135 +9,153 @@ struct ChoiceButtons: View {
     @FocusState private var writeInFocused: Bool
     @FocusState private var directionFocused: Bool
 
-    private let controlColumns: [GridItem] = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
-    
-    private let choiceColumns: [GridItem] = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if let chapter = viewModel.story.currentChapter, chapter.selectedOptionId == nil {
-                Text("Choose your next path")
-                    .font(Theme.monoCaption())
-                    .foregroundStyle(Theme.textSecondary)
-                    .textCase(.uppercase)
-                    .tracking(0.6)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                if let chapter = viewModel.story.currentChapter, chapter.selectedOptionId == nil {
+                    Text("Choose your next path")
+                        .font(Theme.monoCaption())
+                        .foregroundStyle(Theme.textSecondary)
+                        .textCase(.uppercase)
+                        .tracking(0.6)
+                        .padding(.bottom, 4)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    if viewModel.isRefreshingChoices {
-                        HStack(spacing: 8) {
-                            ProgressView()
-                                .controlSize(.small)
-                                .tint(Theme.accent)
-                            Text("Refreshing options...")
-                                .font(.footnote)
-                                .foregroundStyle(Theme.textSecondary)
-                        }
-                    }
-
-                    LazyVGrid(columns: choiceColumns, spacing: 10) {
-                        ForEach(Array(chapter.choices.enumerated()), id: \.element.id) { index, choice in
-                            Button(action: { viewModel.choose(choice) }) {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text("\(index + 1).")
-                                        .font(.callout.weight(.semibold))
-                                        .foregroundStyle(Theme.accent)
-
-                                    Text(choice.label)
-                                        .font(Theme.bodyFont())
-                                        .foregroundStyle(Theme.textPrimary)
-                                        .multilineTextAlignment(.leading)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .frame(maxWidth: .infinity, minHeight: 60, alignment: .topLeading)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .fill(Theme.surface.opacity(0.9))
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
-                        }
-                    }
-
-                    if let direction = viewModel.pendingCreativeDirection, !direction.isEmpty {
-                        HStack(alignment: .top, spacing: 8) {
-                            Image(systemName: "sparkles")
-                                .font(.caption)
-                                .foregroundStyle(Theme.accent)
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Creative direction queued")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(Theme.accent)
-                                Text(direction)
+                    VStack(alignment: .leading, spacing: 12) {
+                        if viewModel.isRefreshingChoices {
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                    .controlSize(.small)
+                                    .tint(Theme.accent)
+                                Text("Refreshing options...")
                                     .font(.footnote)
                                     .foregroundStyle(Theme.textSecondary)
-                                    .lineLimit(2)
+                            }
+                            .padding(.bottom, 4)
+                        }
+
+                        // Choice buttons - single column for sidebar
+                        VStack(spacing: 10) {
+                            ForEach(Array(chapter.choices.enumerated()), id: \.element.id) { index, choice in
+                                Button(action: { viewModel.choose(choice) }) {
+                                    HStack(alignment: .top, spacing: 10) {
+                                        Text("\(index + 1).")
+                                            .font(.callout.weight(.semibold))
+                                            .foregroundStyle(Theme.accent)
+                                            .frame(width: 24, alignment: .leading)
+
+                                        Text(choice.label)
+                                            .font(Theme.bodyFont())
+                                            .foregroundStyle(Theme.textPrimary)
+                                            .multilineTextAlignment(.leading)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 12)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .fill(Theme.surfaceElevated.opacity(0.8))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .stroke(Theme.divider.opacity(0.5), lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
                             }
                         }
-                        .padding(10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Theme.surface.opacity(0.7))
-                        )
+
+                        if let direction = viewModel.pendingCreativeDirection, !direction.isEmpty {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "sparkles")
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.accent)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Creative direction queued")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(Theme.accent)
+                                    Text(direction)
+                                        .font(.footnote)
+                                        .foregroundStyle(Theme.textSecondary)
+                                        .lineLimit(3)
+                                }
+                            }
+                            .padding(10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(Theme.surfaceElevated.opacity(0.6))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .stroke(Theme.accent.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+
+                        // Control buttons - single column for sidebar
+                        VStack(spacing: 10) {
+                            Button {
+                                viewModel.regenerateChoicesForCurrentChapter()
+                            } label: {
+                                Label("Refresh options", systemImage: "square.grid.2x2")
+                                    .font(.callout.weight(.semibold))
+                                    .frame(maxWidth: .infinity, minHeight: 36)
+                            }
+                            .buttonStyle(MonochromeButtonStyle(kind: .subtle))
+                            .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
+
+                            Button {
+                                viewModel.regenerateCurrentChapter()
+                            } label: {
+                                Label("Regenerate chapter", systemImage: "arrow.clockwise")
+                                    .font(.callout.weight(.semibold))
+                                    .frame(maxWidth: .infinity, minHeight: 36)
+                            }
+                            .buttonStyle(MonochromeButtonStyle(kind: .subtle))
+                            .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
+
+                            Button {
+                                writeInText = ""
+                                isWriteInPresented = true
+                            } label: {
+                                Label("Write an action", systemImage: "pencil")
+                                    .font(.callout.weight(.semibold))
+                                    .frame(maxWidth: .infinity, minHeight: 36)
+                            }
+                            .buttonStyle(MonochromeButtonStyle(kind: .subtle))
+                            .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
+
+                            Button {
+                                directionText = viewModel.pendingCreativeDirection ?? ""
+                                isDirectionPresented = true
+                            } label: {
+                                Label("Help write chapter", systemImage: "lightbulb")
+                                    .font(.callout.weight(.semibold))
+                                    .frame(maxWidth: .infinity, minHeight: 36)
+                            }
+                            .buttonStyle(MonochromeButtonStyle(kind: .subtle))
+                            .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
+                        }
+                        .padding(.top, 4)
                     }
-
-                    LazyVGrid(columns: controlColumns, spacing: 10) {
-                        Button {
-                            viewModel.regenerateChoicesForCurrentChapter()
-                        } label: {
-                            Label("Refresh options", systemImage: "square.grid.2x2")
-                                .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 36)
-                        }
-                        .buttonStyle(MonochromeButtonStyle(kind: .subtle))
-                        .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
-
-                        Button {
-                            viewModel.regenerateCurrentChapter()
-                        } label: {
-                            Label("Regenerate chapter", systemImage: "arrow.clockwise")
-                                .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 36)
-                        }
-                        .buttonStyle(MonochromeButtonStyle(kind: .subtle))
-                        .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
-
-                        Button {
-                            writeInText = ""
-                            isWriteInPresented = true
-                        } label: {
-                            Label("Write an action", systemImage: "pencil")
-                                .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 36)
-                        }
-                        .buttonStyle(MonochromeButtonStyle(kind: .subtle))
-                        .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
-
-                        Button {
-                            directionText = viewModel.pendingCreativeDirection ?? ""
-                            isDirectionPresented = true
-                        } label: {
-                            Label("Help write chapter", systemImage: "lightbulb")
-                                .font(.callout.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 36)
-                        }
-                        .buttonStyle(MonochromeButtonStyle(kind: .subtle))
-                        .disabled(viewModel.isGenerating || viewModel.isLoadingModels || viewModel.isRefreshingChoices)
+                } else {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Story in progress")
+                            .font(Theme.monoCaption())
+                            .foregroundStyle(Theme.textSecondary)
+                            .textCase(.uppercase)
+                            .tracking(0.6)
+                        
+                        Text("Waiting for the next chapter to be generated...")
+                            .font(.footnote)
+                            .foregroundStyle(Theme.textSecondary)
                     }
+                    .padding(.top, 8)
                 }
-            } else {
-                EmptyView()
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .scrollIndicators(.hidden)
         .foregroundColor(Theme.textPrimary)
         .sheet(isPresented: $isWriteInPresented) {
             writeInSheet
