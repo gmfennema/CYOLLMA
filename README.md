@@ -2,6 +2,12 @@
 
 CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessions against local Ollama models or Groq's hosted LLMs. It guides the model with strict prompts to keep chapters fresh, collects player choices, and lets you steer the story with write‑ins or explicit creative direction.
 
+## Demo
+
+<p align="center">
+  <img src="assets/CYOLLMA.gif" alt="CYOLLMA Demo" width="600" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);">
+</p>
+
 ## Download
 
 <p align="center">
@@ -46,9 +52,24 @@ CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessi
 ## Screenshots
 
 <p align="center">
-  <img src="assets/homescreen.png" alt="Home screen" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
-  <img src="assets/local_or_cloud.png" alt="Settings provider picker" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
-  <img src="assets/story_view.png" alt="Story view with narration controls" width="420" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="assets/homescreen.png" alt="Home screen" width="400" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+      </td>
+      <td align="center">
+        <img src="assets/settings.png" alt="Settings" width="400" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="assets/local_or_cloud.png" alt="Settings provider picker" width="400" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+      </td>
+      <td align="center">
+        <img src="assets/story_view.png" alt="Story view with narration controls" width="400" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);margin:12px;">
+      </td>
+    </tr>
+  </table>
 </p>
 
 ## License
