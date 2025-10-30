@@ -4,33 +4,62 @@ import AVFoundation
 
 struct StoryView: View {
     @EnvironmentObject private var viewModel: GameViewModel
+    @State private var previousChapterCount: Int = 0
+    @State private var previousIsGenerating: Bool = false
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 20) {
-                ForEach(viewModel.story.chapters) { chapter in
-                    StoryChapterCard(chapter: chapter)
-                        .environmentObject(viewModel)
-                        .transition(.opacity)
-                }
-
-                if viewModel.isGenerating {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(Theme.accent)
-                        Text("Weaving the next chapter...")
-                            .font(.callout)
-                            .foregroundStyle(Theme.textSecondary)
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 20) {
+                    ForEach(viewModel.story.chapters) { chapter in
+                        StoryChapterCard(chapter: chapter)
+                            .environmentObject(viewModel)
+                            .transition(.opacity)
+                            .id(chapter.id)
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 12)
+
+                    if viewModel.isGenerating {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .controlSize(.small)
+                                .tint(Theme.accent)
+                            Text("Weaving the next chapter...")
+                                .font(.callout)
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 12)
+                    }
                 }
+                .padding(.bottom, 16)
             }
-            .padding(.bottom, 16)
+            .scrollIndicators(.hidden)
+            .background(Theme.background)
+            .onChange(of: viewModel.isGenerating) { isGenerating in
+                // When generation completes, scroll to the most recently generated chapter
+                if previousIsGenerating && !isGenerating, let lastChapter = viewModel.story.chapters.last {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        proxy.scrollTo(lastChapter.id, anchor: .top)
+                    }
+                }
+                previousIsGenerating = isGenerating
+            }
+            .onChange(of: viewModel.story.chapters.count) { newCount in
+                // When a new chapter is added, scroll to it
+                if newCount > previousChapterCount, let lastChapter = viewModel.story.chapters.last {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            proxy.scrollTo(lastChapter.id, anchor: .top)
+                        }
+                    }
+                }
+                previousChapterCount = newCount
+            }
+            .onAppear {
+                previousChapterCount = viewModel.story.chapters.count
+                previousIsGenerating = viewModel.isGenerating
+            }
         }
-        .scrollIndicators(.hidden)
-        .background(Theme.background)
     }
 }
 
