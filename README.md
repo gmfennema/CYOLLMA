@@ -1,11 +1,11 @@
-# CYOLLMA
+# Choose Your Own LLM Adventure (CYOLLMA)
 
-CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessions against local Ollama models or Groq's hosted LLMs. It guides the model with strict prompts to keep chapters fresh, collects player choices, and lets you steer the story with write‑ins or explicit creative direction.
+Choose Your Own LLM Adventure (CYOLLMA) is a macOS SwiftUI app for running choose‑your‑own‑adventure sessions against local Ollama models or Groq's hosted LLMs. It guides the model with strict prompts to keep chapters fresh, collects player choices, and lets you steer the story with write‑ins or explicit creative direction.
 
 ## Demo
 
 <p align="center">
-  <img src="assets/CYOLLMA.gif" alt="CYOLLMA Demo" width="600" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);">
+  <img src="assets/CYOLLMA.gif" alt="Choose Your Own LLM Adventure Demo" width="600" style="border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18);">
 </p>
 
 ## Download
