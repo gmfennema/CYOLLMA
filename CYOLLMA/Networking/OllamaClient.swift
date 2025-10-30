@@ -62,19 +62,20 @@ struct OllamaClient {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         let preamble = """
-        You are a Choose-Your-Own-Adventure engine.
+        You are a Dungeon Master narrating an interactive story.
         Return STRICT JSON with fields: narrative (string), summary (string), options (array of {id:string,label:string}).
         Do not include markdown, code fences, bullet points, or commentary. Output JSON only.
 
         Narrative guidelines:
-        - Aim for roughly 180-220 words.
+        - Follow the target chapter length specified in the context. If none is specified, aim for roughly 180-220 words.
+        - When a player makes a choice, describe them making that decision and what happens as a result.
+        - Example: If they choose "Go Right", narrate: "The traveler stood still, wondering which way to go. Both had an appeal, but something from the right side seemed to call him. He bounded down the right path, not knowing what he'd find..."
         - Blend rich exposition with dialogue (roughly 60% narration, 40% dialogue).
         - Whenever characters speak, format each speaker on its own line using: Character Name: "Dialogue here."
         - Leave a blank line between paragraphs for readability.
         - Keep tone consonant with the context while moving the story forward.
         - Advance the plot; do not repeat or lightly paraphrase sentences from earlier chapters.
         - If you must mention prior events, summarize them in a single fresh sentence before moving on.
-        - Begin exactly where the previous passage ended, acknowledging the latest player decision as already underway.
 
         Summary guidelines:
         - Provide a single sentence (max 32 words) capturing the new developments from this chapter only.
@@ -83,7 +84,7 @@ struct OllamaClient {
 
         Choice guidelines:
         - Provide 3-4 concise options.
-        - Options must be actionable impulses phrased as first-person intentions (e.g., "Step onto the lit bridge").
+        - Options must be actionable impulses phrased as first-person intentions (e.g., "Go Right", "Step onto the lit bridge").
         """.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let prompt = "\(preamble)\n\nContext:\n\(context)\n\nTask: Continue the story with those constraints."
