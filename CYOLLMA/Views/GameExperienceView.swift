@@ -23,18 +23,32 @@ struct GameExperienceView: View {
                     )
                     .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 2)
 
-                StoryView()
-                    .environmentObject(viewModel)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 20)
+                HStack(alignment: .top, spacing: 0) {
+                    // Main content area
+                    StoryView()
+                        .environmentObject(viewModel)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 20)
+                        .padding(.bottom, 20)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                ChoiceButtons()
-                    .environmentObject(viewModel)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-                    .padding(.bottom, 18)
-                    .background(Theme.surface)
-                    .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: -2)
+                    // Sidebar divider
+                    Rectangle()
+                        .fill(Theme.divider)
+                        .frame(width: 1)
+
+                    // Sidebar
+                    ChoiceButtons()
+                        .environmentObject(viewModel)
+                        .frame(width: 340)
+                        .frame(maxHeight: .infinity)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                        .padding(.bottom, 20)
+                        .background(Theme.surface)
+                        .shadow(color: Color.black.opacity(0.08), radius: 6, x: -2, y: 0)
+                }
+                .frame(maxHeight: .infinity)
             }
 
             if let error = viewModel.errorMessage {
