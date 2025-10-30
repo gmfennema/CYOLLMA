@@ -20,6 +20,9 @@ final class GameViewModel: ObservableObject {
     }
     @Published var selectedModel: String = ""
     @Published var temperature: Double = 0.9
+    @Published var contentRating: Double = 0.0  // 0.0 = Tame, 1.0 = Explicit
+    @Published var chapterLength: Double = 0.5   // 0.0 = Short (~120 words), 1.0 = Long (~300 words)
+    @Published var customStoryInstructions: String = ""
     @Published private(set) var availableModels: [String] = []
     @Published private(set) var currentScenario: String?
 
@@ -340,9 +343,12 @@ final class GameViewModel: ObservableObject {
     }
 
     private func buildContext(includeVariantHint: Bool) -> String {
+        // Build story settings header
+        let settingsHeader = buildSettingsHeader()
+        
         if story.currentChapter == nil {
             if let scenario = currentScenario, !scenario.isEmpty {
-                return scenario
+                return settingsHeader.isEmpty ? scenario : "\(settingsHeader)\n\n\(scenario)"
             } else {
                 let seed = """
                 Genre: Atmospheric fantasy adventure.
@@ -353,7 +359,7 @@ final class GameViewModel: ObservableObject {
                 Narrative pacing: Allow space for atmospheric exposition between exchanges.
                 Decision integration: Whenever the player chooses an option, treat it as their deliberate action and describe its impact within the next passage.
                 """.trimmingCharacters(in: .whitespacesAndNewlines)
-                return seed
+                return settingsHeader.isEmpty ? seed : "\(settingsHeader)\n\n\(seed)"
             }
         }
 
@@ -390,9 +396,11 @@ final class GameViewModel: ObservableObject {
         You are now writing Chapter \(nextChapterNumber). It must push the plot into new territory—no recaps beyond a single fresh sentence, and absolutely no re-use of wording from earlier chapters. Transition immediately into the consequences of the latest decision.
         """
 
+        let settingsPrefix = settingsHeader.isEmpty ? "" : "\(settingsHeader)\n\n"
+        
         if includeVariantHint {
             return """
-            Here is a running transcript of the story so far. Each chapter already reflects prior dialogue and, when present, the player's decision.
+            \(settingsPrefix)Here is a running transcript of the story so far. Each chapter already reflects prior dialogue and, when present, the player's decision.
             
             \(transcript)
             
@@ -404,7 +412,7 @@ final class GameViewModel: ObservableObject {
             """
         }
         return """
-        Continue this single continuous story. Respect the previous chapters and decisions recorded below. Use fresh prose that advances the plot; never repeat or lightly paraphrase material from the transcript. You may summarize prior events in one short sentence before moving forward.
+        \(settingsPrefix)Continue this single continuous story. Respect the previous chapters and decisions recorded below. Use fresh prose that advances the plot; never repeat or lightly paraphrase material from the transcript. You may summarize prior events in one short sentence before moving forward.
 
         \(transcript)
         \(latestDecisionNote)
@@ -412,6 +420,30 @@ final class GameViewModel: ObservableObject {
         \(latestClosingCue)
         \(continuityReminder)
         """
+    }
+    
+    private func buildSettingsHeader() -> String {
+        var settings: [String] = []
+        
+        // Chapter length setting
+        let minWords = Int(120 + (chapterLength * 180))  // 120-300 words
+        settings.append("Target chapter length: approximately \(minWords) words.")
+        
+        // Content rating setting
+        if contentRating < 0.3 {
+            settings.append("Content rating: Keep content family-friendly and appropriate for all ages. Avoid mature themes, violence, or suggestive content.")
+        } else if contentRating < 0.7 {
+            settings.append("Content rating: Moderate content acceptable. You may include some mature themes, mild violence, or suggestive content when appropriate to the story.")
+        } else {
+            settings.append("Content rating: This should be an R-rated story. Include explicit material such as mature themes, violence, strong language, and explicit content as appropriate to the narrative. The user has selected explicit content, so do not shy away from including it.")
+        }
+        
+        // Custom story instructions
+        if !customStoryInstructions.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            settings.append("Custom instructions: \(customStoryInstructions)")
+        }
+        
+        return settings.isEmpty ? "" : settings.joined(separator: "\n")
     }
 
     private func buildOptionsContext(for chapter: StoryChapter) -> String {

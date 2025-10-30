@@ -26,17 +26,6 @@ struct TopBar: View {
 
             modelSelector
 
-            HStack {
-                Image(systemName: "flame")
-                    .foregroundStyle(Theme.textSecondary)
-                Slider(value: $viewModel.temperature, in: 0.0...1.5, step: 0.1)
-                    .tint(Theme.accent)
-                Text(String(format: "%.1f", viewModel.temperature)).frame(width: 36, alignment: .trailing)
-            }
-            .font(.caption)
-            .foregroundColor(Theme.textSecondary)
-            .frame(maxWidth: 260)
-
             Spacer()
 
             Button("Restart Story") { viewModel.restartSession() }
