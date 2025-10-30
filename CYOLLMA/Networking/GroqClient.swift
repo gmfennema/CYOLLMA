@@ -71,9 +71,14 @@ struct GroqClient {
 
     static let supportedModels: [String] = [
         "openai/gpt-oss-120b",
-        "llama-3.1-70b-versatile",
+        "llama-3.3-70b-versatile",
         "llama-3.1-8b-instant",
-        "mixtral-8x7b-32768"
+        "openai/gpt-oss-20b"
+    ]
+    
+    // Models that support reasoning_effort parameter
+    private static let reasoningModels: Set<String> = [
+        "openai/gpt-oss-120b"
     ]
 
     private struct SpeechRequest: Encodable {
@@ -95,7 +100,7 @@ struct GroqClient {
             max_completion_tokens: 8192,
             top_p: 1,
             stream: false,
-            reasoning_effort: "medium",
+            reasoning_effort: GroqClient.reasoningModels.contains(model) ? "medium" : nil,
             response_format: .init(type: "json_object"),
             stop: nil
         )
@@ -205,7 +210,7 @@ struct GroqClient {
             max_completion_tokens: 2048,
             top_p: 1,
             stream: false,
-            reasoning_effort: "medium",
+            reasoning_effort: GroqClient.reasoningModels.contains(model) ? "medium" : nil,
             response_format: .init(type: "json_object"),
             stop: nil
         )
