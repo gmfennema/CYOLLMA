@@ -13,6 +13,7 @@ struct HomeView: View {
     @State private var selectedScenario: ScenarioOption?
     @State private var useCustomScenario = false
     @State private var customScenarioText: String = ""
+    @State private var displayedScenarios: [ScenarioOption] = []
 
     private static let defaultScenarios: [ScenarioOption] = [
         .init(
@@ -53,27 +54,77 @@ struct HomeView: View {
             Decision continuity: Fold the chosen action into the new prose so the archive feels responsive to the protagonist's intent.
             Anti-repetition: Do not restate prior paragraphs; uncover fresh details with each turn.
             """
+        ),
+        .init(
+            title: "Shadow Market",
+            subtitle: "A bustling bazaar where secrets are currency.",
+            prompt: """
+            Genre: Urban fantasy with noir elements.
+            Tone: Mysterious, bustling, with hidden dangers.
+            Opening premise: The protagonist enters a shadow market where traders deal in memories and forgotten truths.
+            Cast: The seeker (narrator), merchant Talia, and a mysterious informant named Kael.
+            Dialogue: Format as Character Name: "Line." with clear separation. Create tension through clipped exchanges.
+            Decision continuity: Each choice shifts the balance of power in the market.
+            Anti-repetition: Never repeat scenes; always reveal new layers of the market's secrets.
+            """
+        ),
+        .init(
+            title: "Frozen Observatory",
+            subtitle: "Stargazing from the world's highest peak.",
+            prompt: """
+            Genre: Atmospheric science fantasy.
+            Tone: Awe-inspiring, contemplative, with cosmic wonder.
+            Opening premise: An ancient observatory sits at the peak of an impossible mountain, untouched by time.
+            Cast: The astronomer (narrator), keeper Elara, and a star-touched guide named Orion.
+            Dialogue: Use Character Name: "Line." formatting. Keep dialogue sparse and meaningful, weighted with cosmic significance.
+            Decision continuity: Choices echo through the stars and reshape destinies.
+            Anti-repetition: Each chapter reveals new constellations and cosmic truths.
+            """
+        ),
+        .init(
+            title: "Whisperwood",
+            subtitle: "A forest that remembers every step.",
+            prompt: """
+            Genre: Nature-focused fantasy with memory themes.
+            Tone: Ethereal, reflective, deeply connected to nature.
+            Opening premise: A forest where every tree holds memories of those who walked beneath its boughs.
+            Cast: The wanderer (narrator), guardian spirit Fern, and a historian druid named Rowan.
+            Dialogue: Format as Character Name: "Line." with poetic, nature-infused language.
+            Decision continuity: Each choice plants seeds that grow into future consequences.
+            Anti-repetition: Never walk the same path twice; the forest reveals new groves with each turn.
+            """
         )
     ]
 
-    private let scenarios = Self.defaultScenarios
+    private let topCardColumns: [GridItem] = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
+    ]
 
     init(showSettings: Binding<Bool>) {
         _showSettings = showSettings
-        _selectedScenario = State(initialValue: Self.defaultScenarios.first)
+    }
+    
+    private func generateScenarios() {
+        displayedScenarios = Array(Self.defaultScenarios.shuffled().prefix(3))
     }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 28) {
                 header
-                modelPickerCard
+                LazyVGrid(columns: topCardColumns, alignment: .leading, spacing: 0) {
+                    modelPickerCard
+                    customScenarioCard
+                }
+                .frame(maxWidth: .infinity)
                 scenarioPickerCard
-                customScenarioCard
+                    .frame(maxWidth: .infinity)
                 startButton
             }
             .padding(.horizontal, 28)
             .padding(.vertical, 32)
+            .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
         .background(Theme.background.ignoresSafeArea())
@@ -81,31 +132,37 @@ struct HomeView: View {
             if viewModel.availableModels.isEmpty && !viewModel.isLoadingModels {
                 viewModel.refreshModels()
             }
+            if displayedScenarios.isEmpty {
+                generateScenarios()
+            }
         }
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: 16) {
-            VStack(alignment: .leading, spacing: 10) {
+        VStack(spacing: 20) {
+            HStack {
+                Spacer()
+                Button {
+                    showSettings = true
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
+                        .font(.callout.weight(.semibold))
+                }
+                .buttonStyle(MonochromeButtonStyle(kind: .subtle))
+            }
+            
+            VStack(spacing: 12) {
                 Text("Choose Your Story Engine")
                     .font(.system(size: 32, weight: .bold, design: .serif))
                     .foregroundStyle(Theme.textPrimary)
+                    .multilineTextAlignment(.center)
                 Text("Select a model and starting prompt to begin weaving a bespoke adventure.")
                     .font(.title3)
                     .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
             }
-
-            Spacer()
-
-            Button {
-                showSettings = true
-            } label: {
-                Label("Settings", systemImage: "gearshape")
-                    .font(.callout.weight(.semibold))
-            }
-            .buttonStyle(MonochromeButtonStyle(kind: .subtle))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
     }
 
     private var modelPickerCard: some View {
@@ -186,20 +243,44 @@ struct HomeView: View {
                         .foregroundStyle(Theme.danger)
                 }
             }
+            
+            Spacer()
+                .frame(height: 0)
         }
+        .frame(minHeight: 160)
         .cardBackground()
     }
 
     private var scenarioPickerCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Scenarios")
-                .font(Theme.monoCaption())
-                .foregroundStyle(Theme.textSecondary)
-                .textCase(.uppercase)
-                .tracking(0.6)
+            HStack {
+                Text("Scenarios")
+                    .font(Theme.monoCaption())
+                    .foregroundStyle(Theme.textSecondary)
+                    .textCase(.uppercase)
+                    .tracking(0.6)
+                
+                Spacer()
+                
+                Button {
+                    withAnimation {
+                        generateScenarios()
+                        selectedScenario = nil
+                        useCustomScenario = false
+                    }
+                } label: {
+                    Label("Generate New", systemImage: "arrow.clockwise")
+                        .font(.callout.weight(.semibold))
+                }
+                .buttonStyle(MonochromeButtonStyle(kind: .subtle))
+            }
 
-            VStack(spacing: 12) {
-                ForEach(scenarios) { option in
+            LazyVGrid(columns: [
+                GridItem(.flexible(), spacing: 12),
+                GridItem(.flexible(), spacing: 12),
+                GridItem(.flexible(), spacing: 12)
+            ], spacing: 12) {
+                ForEach(displayedScenarios) { option in
                     Button {
                         withAnimation {
                             selectedScenario = option
@@ -210,12 +291,15 @@ struct HomeView: View {
                             Text(option.title)
                                 .font(.headline)
                                 .foregroundStyle(Theme.textPrimary)
+                                .multilineTextAlignment(.leading)
                             Text(option.subtitle)
                                 .font(.subheadline)
                                 .foregroundStyle(Theme.textSecondary)
+                                .multilineTextAlignment(.leading)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
+                        .frame(minHeight: 110)
                         .background(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(selectedScenario == option && !useCustomScenario ? Theme.surfaceElevated : Theme.surface)
@@ -233,7 +317,7 @@ struct HomeView: View {
     }
 
     private var customScenarioCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Text("Custom Scenario")
                 .font(Theme.monoCaption())
                 .foregroundStyle(Theme.textSecondary)
@@ -265,7 +349,11 @@ struct HomeView: View {
                     .font(.footnote)
                     .foregroundStyle(Theme.textSecondary)
             }
+            
+            Spacer()
+                .frame(height: 0)
         }
+        .frame(minHeight: 160)
         .cardBackground()
     }
 
