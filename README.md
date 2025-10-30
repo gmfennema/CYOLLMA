@@ -14,13 +14,18 @@ CYOLLMA is a macOS SwiftUI app for running choose‑your‑own‑adventure sessi
 
 **Installation:**
 
-1. Download the DMG file above
-2. Open the DMG and drag `CYOLLMA.app` to your Applications folder
-3. If macOS shows "CYOLLMA.app is damaged and can't be opened", run this command in Terminal to remove the quarantine attribute:
+1. Download the DMG file above (it will be in your Downloads folder)
+2. **If macOS shows "CYOLLMA is damaged and can't be opened"** when trying to open the DMG, run this command in Terminal to remove the quarantine attribute:
+   ```bash
+   xattr -d com.apple.quarantine ~/Downloads/CYOLLMA-app.dmg
+   ```
+   Then try opening the DMG again.
+3. Open the DMG and drag `CYOLLMA.app` to your Applications folder
+4. If macOS shows "CYOLLMA.app is damaged and can't be opened" when launching the app, run:
    ```bash
    xattr -d com.apple.quarantine /Applications/CYOLLMA.app
    ```
-4. Right-click the app and select "Open" the first time you launch it, then click "Open" again when prompted
+5. Right-click the app and select "Open" the first time you launch it, then click "Open" again when prompted
 
 ## Features
 
